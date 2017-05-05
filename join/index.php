@@ -28,7 +28,7 @@ if (!empty($filename)){
   $ext = strtolower($ext);
 
   if($ext != 'jpg' && $ext != 'gif' && $ext != 'png'){
-    $error['picyure_path'] = 'type';
+    $error['picture_path'] = 'type';
   }
 }
 
@@ -45,6 +45,12 @@ if (empty($error)){
 
 	header('Location: check.php');
 }
+}
+
+//書き直し
+if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'rewrite'){
+  $_POST = $_SESSION['join'];
+  $error['rewrite'] = true;
 }
 
 ?>
@@ -156,7 +162,7 @@ if (empty($error)){
                 <p class="error">=写真などは「.gif」「.jpg」「.png」の画像を指定してください。</p>
               <?php endif; ?>
               <?php if (!empty($error)): ?>
-                <p class="error">= 恐れ入りますが、画像を改めて指定してください。</p>
+                <p class="error"> 恐れ入りますが、画像を改めて指定してください。</p>
                 <?php endif; ?>
             </div>
           </div>
