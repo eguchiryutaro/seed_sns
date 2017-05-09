@@ -1,5 +1,15 @@
 <?php
+  session_start();
   require('dbconnect.php');
+  //自動ログイン処理
+  if (isset($_COOKIE['email']) && !empty($_COOKIE['email'])){
+
+    //cookieに保存されているログイン情報が、入力されてPOST送信されてきたかのように＄＿POSTに値を代入
+
+    $_POST['email'] = $_COOKIE['email'];
+    $_POST['password'] = $_COOKIE['password'];
+    $_POST['save'] = 'on';
+  }
 //post送信されていたら、emailとパスワードの入力チェックを行い、どちらかが（あるいは両方）未入力の場合、「メールアドレスとパスワードをご記入ください」とパスワード入力欄の下に表示してください
 //$error['login']にもblankという文字をセットして判別できるようにすること
 if(!empty($_POST)){
@@ -30,6 +40,13 @@ if(!empty($_POST)){
         $_SESSION['login_member_id'] = $table['member_id'];
         //SESSION変数に、ログイン時間を記録
         $_SESSION['time'] = time();
+
+        //自動ログインをONにしていたら、cookieにログイン情報を保存する
+        if ($_POST['save'] == 'on'){
+          //setcookie(保存するキー、保存する値、保存する期間(秒))
+          setcookie('email',$_POST['email'],time() + 60*60*24*14);
+          setcookie('password',$_POST['password'],time() + 60*60*24*14);
+        }
         //ログイン後のindex.php（トップページ）に遷移
         header("Location: index.php");
         exit();
@@ -109,6 +126,13 @@ if(!empty($_POST)){
                 <p class="error">*
                 ログインに失敗しました、正しくご記入ください。</p>
               <?php endif; ?>
+          </div>
+          </div>
+          <!-- 自動ログイン設定 -->
+          <div class="form-group">
+          <lavel class="col-sm-4 control-label">自動ログイン</lavel>
+          <div class="col-sm-8">
+          <input type="checkbox" name="save" value="on">
           </div>
           </div>
           <input type="submit" class="btn btn-default" value="ログイン">

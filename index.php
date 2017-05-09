@@ -1,3 +1,45 @@
+<?php
+  session_start();
+
+  if ((isset($_SESSION['login_member_id'])) && ($_SESSION['time'] + 3600 > time())){
+
+    $_SESSION['time'] = time();
+
+  }else{
+    header('Location: login.php');
+    exit();
+  }
+
+  require('dbconnect.php');
+  
+  $sql = sprintf('SELECT * FROM `members` WHERE `member_id` = %d',
+    mysqli_real_escape_string($db,$_SESSION['login_member_id']));
+
+  $record = mysqli_query($db,$sql) or die(mysqli_error($db));
+    $member = mysqli_fetch_assoc($record);
+
+    $dsn = 'mysql:dbname=oneline_bbs;host=localhost';
+    $user = 'root';
+    $password = '';
+
+    if (!empty($_POST)){
+    $tweet = htmlspecialchars($_POST['tweet'],ENT_QUOTES,'UTF-8');
+    $login_member_id = htmlspecialchars($_SESSION['login_member_id']);
+    $reply_tweet_id = 0;
+
+    $sql = sprintf('INSERT INTO `tweets`(`tweet`,`member_id`,`reply_tweet_id`,`created`,`modified`) 
+      VALUES ("%s", "%s", "%s", now(), now());',
+      mysqli_real_escape_string($db,$tweet),
+      mysqli_real_escape_string($db,$login_member_id),
+      mysqli_real_escape_string($db,$reply_tweet_id));
+
+    mysqli_query($db,$sql) or die(mysqli_error($db));
+    header("Location: index.php");
+    exit();
+
+    }
+
+?>
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -8,11 +50,11 @@
     <title>SeedSNS</title>
 
     <!-- Bootstrap -->
-    <link href="index.php/assets/css/bootstrap.css" rel="stylesheet">
-    <link href="login.php/assets/font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link href="view.php/assets/css/form.css" rel="stylesheet">
-    <link href="../assets/css/timeline.css" rel="stylesheet">
-    <link href="../assets/css/main.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="assets/css/form.css" rel="stylesheet">
+    <link href="assets/css/timeline.css" rel="stylesheet">
+    <link href="assets/css/main.css" rel="stylesheet">
 
   </head>
   <body>
@@ -31,7 +73,7 @@
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav navbar-right">
-                <li><a href="logout.html">ログアウト</a></li>
+                <li><a href="logout.php">ログアウト</a></li>
               </ul>
           </div>
           <!-- /.navbar-collapse -->
@@ -42,7 +84,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-4 content-margin-top">
-        <legend>ようこそ●●さん！</legend>
+        <legend>ようこそ<?php echo $member['nick_name']; ?>さん！</legend>
         <form method="post" action="" class="form-horizontal" role="form">
             <!-- つぶやき -->
             <div class="form-group">
@@ -124,8 +166,8 @@
   </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="../assets/js/jquery-3.1.1.js"></script>
-    <script src="../assets/js/jquery-migrate-1.4.1.js"></script>
-    <script src="../assets/js/bootstrap.js"></script>
+    <script src="assets/js/jquery-3.1.1.js"></script>
+    <script src="assets/js/jquery-migrate-1.4.1.js"></script>
+    <script src="assets/js/bootstrap.js"></script>
   </body>
 </html>
